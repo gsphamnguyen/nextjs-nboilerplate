@@ -8,6 +8,7 @@ import { styled } from '@mui/material/styles';
 import { Document, Packer, Paragraph, ShadingType, TextRun } from 'docx';
 import { saveAs } from 'file-saver';
 import { filesize } from 'filesize';
+import { convert } from 'html-to-text';
 import type { ChangeEvent } from 'react';
 import { useState } from 'react';
 
@@ -24,34 +25,75 @@ const Item = styled(Paper)(({ theme }) => ({
   fontWeight: '600',
 }));
 
-import TurnDownService from 'turndown'
-
-
 const Index = () => {
   const generateDocument = (input: string) => {
     const data = JSON.parse(input);
-    const turndownService = new TurnDownService()
     const renderDocumentFromData = (input: []) =>
       input
         .map((item) => {
-          const markdownDescription = turndownService.turndown(item.Description)
-          const markdownAcceptanceCriteria = turndownService.turndown(item['Acceptance Criteria'])
+          const convertOptions = {
+            preserveNewlines: true,
+            selectors: [
+              { selector: 'a', format: 'skip' },
+              { selector: 'img', format: 'skip' },
+              {
+                selector: 'ul',
+                options: {
+                  itemPrefix: ' • ',
+                },
+              },
+            ],
+          };
+          const resultDescription = convert(item.Description, convertOptions);
+          const resultAcceptanceCriteria = convert(
+            item['Acceptance Criteria'],
+            convertOptions
+          );
+          console.log(resultAcceptanceCriteria);
           return [
             new Paragraph({
               children: [
                 new TextRun({
-                  text: 'Monthly statement via Email',
+                  text: `${item.Title}`,
                   bold: true,
                   size: 28,
+                  font: 'Calibri',
                 }),
               ],
+              border: {
+                top: {
+                  color: '#EEEEEE',
+                  space: 1,
+                  style: 'single',
+                  size: 6,
+                },
+                bottom: {
+                  color: '#EEEEEE',
+                  space: 1,
+                  style: 'single',
+                  size: 6,
+                },
+                left: {
+                  color: '#EEEEEE',
+                  space: 1,
+                  style: 'single',
+                  size: 6,
+                },
+                right: {
+                  color: '#EEEEEE',
+                  space: 1,
+                  style: 'single',
+                  size: 6,
+                },
+              },
               shading: {
                 type: ShadingType.SOLID,
-                color: '#111827',
+                color: '#E2ECFD',
                 fill: 'auto',
               },
               spacing: {
                 after: 120,
+                line: 250,
               },
             }),
             new Paragraph({
@@ -60,6 +102,7 @@ const Index = () => {
                   text: 'Priority',
                   bold: true,
                   size: 24,
+                  font: 'Calibri',
                 }),
               ],
               border: {
@@ -71,12 +114,19 @@ const Index = () => {
                 },
               },
               spacing: {
+                before: 120,
                 after: 120,
               },
             }),
             new Paragraph({
-              text: `${item.Priority}`,
+              children: [
+                new TextRun({
+                  text: `${item.Priority}`,
+                  font: 'Calibri',
+                }),
+              ],
               spacing: {
+                before: 120,
                 after: 120,
               },
             }),
@@ -86,6 +136,7 @@ const Index = () => {
                   text: 'Description',
                   bold: true,
                   size: 24,
+                  font: 'Calibri',
                 }),
               ],
               border: {
@@ -97,12 +148,19 @@ const Index = () => {
                 },
               },
               spacing: {
+                before: 120,
                 after: 120,
               },
             }),
             new Paragraph({
-              text: `${markdownDescription}`,
+              children: [
+                new TextRun({
+                  text: `${resultDescription}`,
+                  font: 'Calibri',
+                }),
+              ],
               spacing: {
+                before: 120,
                 after: 120,
               },
             }),
@@ -112,6 +170,7 @@ const Index = () => {
                   text: 'Acceptance Criteria',
                   bold: true,
                   size: 24,
+                  font: 'Calibri',
                 }),
               ],
               border: {
@@ -123,16 +182,23 @@ const Index = () => {
                 },
               },
               spacing: {
+                before: 120,
                 after: 120,
               },
             }),
             new Paragraph({
-              text: `${markdownAcceptanceCriteria}`,
+              children: [
+                new TextRun({
+                  text: `${resultAcceptanceCriteria}`,
+                  font: 'Calibri',
+                }),
+              ],
               spacing: {
-                after: 120,
+                before: 120,
+                after: 300,
               },
             }),
-          ]
+          ];
         })
         .flat();
     return new Document({
@@ -189,7 +255,7 @@ const Index = () => {
     const file = fileList.find((item, fileIndex) => fileIndex === index);
     if (file) {
       const result = await readFileAsText(file);
-      setFilePreview(result.toString());
+      // setFilePreview(result.toString());
       saveDocumentToFile(
         generateDocument(result.toString()),
         `BADocumentTemplate.docx`
@@ -265,7 +331,7 @@ const Index = () => {
                 {filesize(file.size, { base: 2, standard: 'jedec' })}
               </span>
               <Chip
-                label="Preview"
+                label="Download"
                 size="small"
                 variant="outlined"
                 // onClick={() => handlePreview(index)}
