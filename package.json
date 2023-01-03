@@ -33,6 +33,7 @@
     "file-saver": "^2.0.5",
     "filesize": "^10.0.6",
     "html-to-docx": "^1.6.4",
+    "html-to-text": "^9.0.3",
     "next": "^13.1.0",
     "next-seo": "^5.15.0",
     "next-sitemap": "^3.1.43",

@@ -1,12 +1,11 @@
 import IconClose from '@mui/icons-material/Close';
 import Chip from '@mui/material/Chip';
 import Container from '@mui/material/Container';
+import Dialog from '@mui/material/Dialog';
 import IconButton from '@mui/material/IconButton';
 import Paper from '@mui/material/Paper';
 import Stack from '@mui/material/Stack';
 import { styled } from '@mui/material/styles';
-import { Document, Packer, Paragraph, ShadingType, TextRun } from 'docx';
-import { saveAs } from 'file-saver';
 import { filesize } from 'filesize';
 import type { ChangeEvent } from 'react';
 import { useState } from 'react';
@@ -24,143 +23,13 @@ const Item = styled(Paper)(({ theme }) => ({
   fontWeight: '600',
 }));
 
-import TurnDownService from 'turndown'
-
-
 const Index = () => {
-  const generateDocument = (input: string) => {
-    const data = JSON.parse(input);
-    const turndownService = new TurnDownService()
-    const renderDocumentFromData = (input: []) =>
-      input
-        .map((item) => {
-          const markdownDescription = turndownService.turndown(item.Description)
-          const markdownAcceptanceCriteria = turndownService.turndown(item['Acceptance Criteria'])
-          return [
-            new Paragraph({
-              children: [
-                new TextRun({
-                  text: 'Monthly statement via Email',
-                  bold: true,
-                  size: 28,
-                }),
-              ],
-              shading: {
-                type: ShadingType.SOLID,
-                color: '#111827',
-                fill: 'auto',
-              },
-              spacing: {
-                after: 120,
-              },
-            }),
-            new Paragraph({
-              children: [
-                new TextRun({
-                  text: 'Priority',
-                  bold: true,
-                  size: 24,
-                }),
-              ],
-              border: {
-                bottom: {
-                  color: '#111827',
-                  space: 2,
-                  style: 'thick',
-                  size: 6,
-                },
-              },
-              spacing: {
-                after: 120,
-              },
-            }),
-            new Paragraph({
-              text: `${item.Priority}`,
-              spacing: {
-                after: 120,
-              },
-            }),
-            new Paragraph({
-              children: [
-                new TextRun({
-                  text: 'Description',
-                  bold: true,
-                  size: 24,
-                }),
-              ],
-              border: {
-                bottom: {
-                  color: '#111827',
-                  space: 2,
-                  style: 'thick',
-                  size: 6,
-                },
-              },
-              spacing: {
-                after: 120,
-              },
-            }),
-            new Paragraph({
-              text: `${markdownDescription}`,
-              spacing: {
-                after: 120,
-              },
-            }),
-            new Paragraph({
-              children: [
-                new TextRun({
-                  text: 'Acceptance Criteria',
-                  bold: true,
-                  size: 24,
-                }),
-              ],
-              border: {
-                bottom: {
-                  color: '#111827',
-                  space: 2,
-                  style: 'thick',
-                  size: 6,
-                },
-              },
-              spacing: {
-                after: 120,
-              },
-            }),
-            new Paragraph({
-              text: `${markdownAcceptanceCriteria}`,
-              spacing: {
-                after: 120,
-              },
-            }),
-          ]
-        })
-        .flat();
-    return new Document({
-      creator: 'Yoong',
-      description: 'Monthly statement via Email',
-      title: 'BA Document template',
-      sections: [
-        {
-          properties: {},
-          children: renderDocumentFromData(data),
-        },
-      ],
-    });
-  };
-
-  const saveDocumentToFile = (document: Document, fileName: String) => {
-    const mimeType =
-      'application/vnd.openxmlformats-officedocument.wordprocessingml.document';
-    Packer.toBlob(document).then((blob) => {
-      const docblob = blob.slice(0, blob.size, mimeType);
-      saveAs(docblob, fileName);
-    });
-  };
-
   const [fileList, setFileList] = useState<File[]>([]);
-  const [previewUrl, setPreviewUrl] = useState<string | null>(null);
+  const [previewUrl, setPreviewUrl] = useState<Array>([]);
+  const [showPreview, setShowPreview] = useState<Boolean>(false);
   const acceptTypeList = ['application/json'];
   const [filePreview, setFilePreview] = useState<String>('');
+
   const handleFileChange = ($event: ChangeEvent<HTMLInputElement>) => {
     const fileInput = $event.target;
     if (!fileInput.files) {
@@ -189,12 +58,12 @@ const Index = () => {
     const file = fileList.find((item, fileIndex) => fileIndex === index);
     if (file) {
       const result = await readFileAsText(file);
-      setFilePreview(result.toString());
-      saveDocumentToFile(
-        generateDocument(result.toString()),
-        `BADocumentTemplate.docx`
-      );
+      setFilePreview(JSON.parse(result.toString()));
+      setShowPreview(true);
     }
+  };
+  const handleClose = () => {
+    setShowPreview(false);
   };
   const handleClearPreview = () => {
     setFilePreview('');
@@ -268,7 +137,6 @@ const Index = () => {
                 label="Preview"
                 size="small"
                 variant="outlined"
-                // onClick={() => handlePreview(index)}
                 onClick={() => handlePreview(index)}
               />
               <IconButton
@@ -281,24 +149,56 @@ const Index = () => {
             </Item>
           ))}
         </Stack>
-        {filePreview && (
-          <div className="relative w-full">
-            <textarea
-              className="h-96 w-full rounded-md p-3 text-sm font-medium text-gray-900"
-              onChange={(event) => setFilePreview(event.target.value)}
-              value={filePreview}
-              name="previewFile"
-              id="idPreviewFile"
-            ></textarea>
-            <IconButton
-              className="!absolute right-2 top-2 z-10"
-              onClick={handleClearPreview}
-              aria-label="delete"
-              size="small"
-            >
-              <IconClose fontSize="inherit" />
-            </IconButton>
-          </div>
+        {filePreview.length > 0 && (
+          <Dialog fullScreen onClose={handleClose} open={showPreview}>
+            <div className="relative h-full w-full p-6">
+              <IconButton
+                className="!fixed right-2 top-2 z-10 print:!hidden"
+                onClick={handleClose}
+                aria-label="delete"
+                size="small"
+              >
+                <IconClose fontSize="inherit" />
+              </IconButton>
+              <div className="gray-900 container mx-auto space-y-10">
+                {filePreview.map((item, index) => (
+                  <div key={index}>
+                    <h1 className="solid border border-gray-200 bg-blue-200 px-2 py-1 text-lg font-semibold">
+                      {item.Title}
+                    </h1>
+                    <div className="mt-3">
+                      <h2 className="solid text-md border-b border-gray-900 font-semibold">
+                        Priority
+                      </h2>
+                      <p className="mt-1 text-sm font-medium">
+                        {item.Priority}
+                      </p>
+                    </div>
+                    <div className="mt-3">
+                      <h2 className="solid text-md border-b border-gray-900 font-semibold">
+                        Description
+                      </h2>
+                      <div
+                        className="mt-1 text-sm font-medium hideImgChild"
+                        dangerouslySetInnerHTML={{ __html: item.Description }}
+                      />
+                    </div>
+                    <div className="mt-3">
+                      <h2 className="solid text-md border-b border-gray-900 font-semibold">
+                        Acceptance Criteria
+                      </h2>
+                      <div
+                        className="mt-1 text-sm font-medium hideImgChild"
+                        dangerouslySetInnerHTML={{
+                          __html: item['Acceptance Criteria'],
+                        }}
+                      />
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </Dialog>
         )}
       </Container>
     </Main>

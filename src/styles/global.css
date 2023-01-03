@@ -12,10 +12,7 @@ a:hover {
 
 @tailwind utilities;
 
-.content p {
-  @apply my-6;
-}
 
-.content ul {
-  @apply my-6;
+.hideImgChild img {
+  @apply hidden;
 }
