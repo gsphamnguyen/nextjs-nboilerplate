@@ -25,14 +25,21 @@
     "@emotion/cache": "^11.10.5",
     "@emotion/react": "^11.10.5",
     "@emotion/styled": "^11.10.5",
+    "@mui/icons-material": "^5.11.0",
     "@mui/material": "^5.11.2",
     "@next/font": "^13.1.1",
+    "add": "^2.0.6",
+    "docx": "^7.8.0",
+    "file-saver": "^2.0.5",
+    "filesize": "^10.0.6",
+    "html-to-docx": "^1.6.4",
     "next": "^13.1.0",
     "next-seo": "^5.15.0",
     "next-sitemap": "^3.1.43",
     "prop-types": "^15.8.1",
     "react": "^18.2.0",
-    "react-dom": "^18.2.0"
+    "react-dom": "^18.2.0",
+    "turndown": "^7.1.1"
   },
   "devDependencies": {
     "@commitlint/cli": "^17.3.0",
