@@ -1,5 +1,16 @@
 @tailwind base;
 
+@media print {
+  body {
+    -webkit-print-color-adjust: exact;
+  }
+}
+
+@page {
+  size: A4;
+  margin: 24px 16px;
+}
+
 a {
   @apply text-blue-700;
 }
@@ -15,4 +26,8 @@ a:hover {
 
 .hideImgChild img {
   @apply hidden;
+}
+
+.ticket-content {
+  page-break-inside: avoid;
 }

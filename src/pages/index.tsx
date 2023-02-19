@@ -25,7 +25,6 @@ const Item = styled(Paper)(({ theme }) => ({
 
 const Index = () => {
   const [fileList, setFileList] = useState<File[]>([]);
-  const [previewUrl, setPreviewUrl] = useState<Array>([]);
   const [showPreview, setShowPreview] = useState<Boolean>(false);
   const acceptTypeList = ['application/json'];
   const [filePreview, setFilePreview] = useState<String>('');
@@ -44,6 +43,7 @@ const Index = () => {
       alert('Please select a valid extension');
       return;
     } */
+    // @ts-ignore
     setFileList([...fileList, ...blobFileList]);
     $event.currentTarget.type = 'text';
     $event.currentTarget.type = 'file';
@@ -166,7 +166,7 @@ const Index = () => {
                     <h1 className="solid border border-gray-200 bg-blue-200 px-2 py-1 text-lg font-semibold">
                       {item.Title}
                     </h1>
-                    <div className="mt-3">
+                    <div className="mt-3 ticket-content">
                       <h2 className="solid text-md border-b border-gray-900 font-semibold">
                         Priority
                       </h2>
@@ -174,7 +174,7 @@ const Index = () => {
                         {item.Priority}
                       </p>
                     </div>
-                    <div className="mt-3">
+                    <div className="mt-3 ticket-content">
                       <h2 className="solid text-md border-b border-gray-900 font-semibold">
                         Description
                       </h2>
@@ -183,7 +183,7 @@ const Index = () => {
                         dangerouslySetInnerHTML={{ __html: item.Description }}
                       />
                     </div>
-                    <div className="mt-3">
+                    <div className="mt-3 ticket-content">
                       <h2 className="solid text-md border-b border-gray-900 font-semibold">
                         Acceptance Criteria
                       </h2>
@@ -196,6 +196,8 @@ const Index = () => {
                     </div>
                   </div>
                 ))}
+                <div className="h-screen"></div>
+                <div className="h-screen"></div>
               </div>
             </div>
           </Dialog>
